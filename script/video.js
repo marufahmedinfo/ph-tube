@@ -29,11 +29,41 @@ const loadCatagorisVideo = (id) => {
     // alert(id)
     fetch(`https://openapi.programming-hero.com/api/phero-tube/category/${id}`)
     .then(res => res.json())
-    .then(data => displayVideos(data.category))
-    .catch(error => console.log(error));
+    .then(data => {
+        removeActiveClass();
+
+        const activeBtn = document.getElementById(`btn-${id}`);
+        activeBtn.classList.add("active")
+        displayVideos(data.category);
+    })
+    .catch(error => console.log(error))
 };
 
+const removeActiveClass = () => {
+    const removeClass = document.getElementsByClassName('catagori-btn');
+    console.log(removeClass)
+    for(let btn of removeClass){
+        btn.classList.remove('active');
+    };
+};
 
+const loadDetails = async(videoId) => {
+    // console.log(videoId)
+    const uri = `https://openapi.programming-hero.com/api/phero-tube/video/${videoId}`;
+    const res = await fetch(uri);
+    const data = await  res.json()
+    displayDetails(data.video)
+};
+const displayDetails = (video) => {
+    console.log(video)
+    const ditailContainer = document.getElementById('modal-content');
+    ditailContainer.innerHTML = `
+    <img src=${video.thumbnail}/>
+    <p>${video.description}</p>
+    `;
+    // document.getElementById('showModalData').click();
+    document.getElementById('customModal').showModal();
+}
 // const cardDemo = {
 //         "category_id": "1001",
 //         "video_id": "aaaa",
@@ -89,12 +119,13 @@ const displayVideos = (videos) => {
         ${video.authors[0].verified === true ? '<img class="w-5" src="https://img.icons8.com/?size=48&id=D9RtvkuOe31p&format=png"  alt="Shoes"/>': ""}
         </div>
         <p class="text-gray-400">${video.others.views}</p>
+        <button onclick="loadDetails('${video.video_id}')" class="btn btn-sm btn-error text-white">Details</button>
         </div>
   </div>
         `;
         videoContainer.append(card)
     });
-}
+};
 
 const displayCatagoris = (catagores) => {
     const catagoriContainer = document.getElementById('catagoriys');
@@ -102,10 +133,10 @@ const displayCatagoris = (catagores) => {
         console.log(item)
         const buttonContainer = document.createElement('div');
         buttonContainer.innerHTML = `
-        <button class="btn" onclick="loadCatagorisVideo(${item.category_id})">${item.category}</button>
+        <button id="btn-${item.category_id}" class="btn catagori-btn" onclick="loadCatagorisVideo(${item.category_id})">${item.category}</button>
         `;
 
-        catagoriContainer.append(buttonContainer)
+        catagoriContainer.append(buttonContainer);
     });
 }
 
